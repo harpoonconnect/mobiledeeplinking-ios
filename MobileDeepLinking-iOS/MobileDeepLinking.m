@@ -34,15 +34,15 @@
 
 #pragma mark - Initialization Methods
 
-+ (id)sharedInstance
++ (instancetype)sharedInstance
 {
-    static dispatch_once_t pred;
-    static MobileDeepLinking *sharedInstance = nil;
-    dispatch_once(&pred, ^
-    {
-        sharedInstance = [[MobileDeepLinking alloc] init];
-    });
-    return sharedInstance;
+	static MobileDeepLinking *sharedInstance = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		sharedInstance = [[MobileDeepLinking alloc] init];
+		// Do any other initialisation stuff here
+	});
+	return sharedInstance;
 }
 
 - (id)init
@@ -65,7 +65,7 @@
 * @handlerName - name to register handler function under
 * @handlerFunction - a block function declaration that takes in a NSDictionary
 */
-- (void)registerHandlerWithName:(NSString *)handlerName handler:(void (^)(NSDictionary *))handlerFunction
+- (void)registerHandlerWithName:(NSString *)handlerName handler:(BOOL (^)(NSDictionary *, NSDictionary *))handlerFunction
 {
     if (handlers == nil)
     {
@@ -146,8 +146,19 @@
 */
 - (BOOL)handleRouteWithOptions:(NSDictionary *)routeOptions params:(NSDictionary *)routeParams error:(NSError **)error
 {
-    return [MDLHandlerExecutor executeHandlers:routeOptions routeParams:routeParams handlers:handlers error:error]
-            && [MDLViewBuilder displayView:routeOptions routeParams:routeParams config:config error:error];
+	BOOL result = [MDLHandlerExecutor executeHandlers:routeOptions routeParams:routeParams handlers:handlers error:error];
+
+	if(!result)
+	{
+		return NO;
+	}
+
+    return [MDLViewBuilder displayView:routeOptions routeParams:routeParams config:config error:error];
+}
+
+- (id)buildViewWithOptions:(NSDictionary *)routeOptions params:(NSDictionary *)routeParams error:(NSError **)error
+{
+	return [MDLViewBuilder buildView:routeOptions routeParams:routeParams config:config error:error];
 }
 
 - (void)routeToDefault
@@ -209,6 +220,5 @@
 {
     abort();
 }
-
 
 @end

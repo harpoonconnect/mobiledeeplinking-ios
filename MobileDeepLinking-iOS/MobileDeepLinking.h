@@ -27,8 +27,10 @@
 
 + (id)sharedInstance;
 
-- (void)registerHandlerWithName:(NSString *)handlerName handler:(void (^)(NSDictionary *))handlerFunction;
+- (void)registerHandlerWithName:(NSString *)handlerName handler:(BOOL (^)(NSDictionary *, NSDictionary *))handlerFunction;
 
 - (void)routeUsingUrl:(NSURL *)deeplink;
+
+- (id)buildViewWithOptions:(NSDictionary *)routeOptions params:(NSDictionary *)routeParams error:(NSError **)error;
 
 @end

@@ -34,4 +34,6 @@
 
 + (BOOL)setPropertiesOnViewController:(UIViewController *)viewController routeParams:(NSDictionary *)routeParams config:(MDLConfig *)config;
 
++ (id)buildView:(NSDictionary *)routeOptions routeParams:(NSDictionary *)routeParams config:(MDLConfig *)config error:(NSError **)error;
+
 @end

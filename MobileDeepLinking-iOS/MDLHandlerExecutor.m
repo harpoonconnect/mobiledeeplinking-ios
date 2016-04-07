@@ -40,8 +40,14 @@
         {
             if ([handlers objectForKey:routeHandlers[i]] != nil)
             {
-                void(^handlerBlock)(NSDictionary *) = [handlers objectForKey:routeHandlers[i]];
-                handlerBlock(routeParams);
+                BOOL(^handlerBlock)(NSDictionary *, NSDictionary*) = [handlers objectForKey:routeHandlers[i]];
+                BOOL result = handlerBlock(routeOptions, routeParams);
+
+				if(!result)
+				{
+					[MDLError setError:error withMessage:[NSString stringWithFormat:@"Handler %@ has not been completed.", routeHandlers[i]]];
+					return NO;
+				}
             }
             else
             {

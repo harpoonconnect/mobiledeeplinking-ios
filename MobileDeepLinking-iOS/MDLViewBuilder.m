@@ -52,9 +52,35 @@
     }
 
     // push view controller
-    MDLViewNavigator *viewNavigator = [[MDLViewNavigator alloc] initWithRootViewController:[[UIApplication sharedApplication] keyWindow].rootViewController];
+	MDLViewNavigator *viewNavigator = [[MDLViewNavigator alloc] initWithRootViewController:[[UIApplication sharedApplication] keyWindow].rootViewController];
     [viewNavigator showViewController:newViewController];
     return YES;
+}
+
+/**
+ * Build View based on presence of storyboard, identifier, and class.
+ */
++ (id)buildView:(NSDictionary *)routeOptions routeParams:(NSDictionary *)routeParams config:(MDLConfig *)config error:(NSError **)error
+{
+	// construct view controller
+	id newViewController = [self buildViewController:routeOptions config:config];
+	if (!newViewController)
+	{
+		if (config.logging)
+		{
+			NSLog(@"No View Controllers found in route options.");
+		}
+		return NO;
+	}
+
+	BOOL success = [self setPropertiesOnViewController:newViewController routeParams:routeParams config:config];
+	if (!success)
+	{
+		[MDLError setError:error withMessage:[NSString stringWithFormat:@"Setting properties on %@ failed.", NSStringFromClass([newViewController class])]];
+		return NO;
+	}
+
+	return newViewController;
 }
 
 /**
@@ -79,7 +105,7 @@
             NSLog(@"Routing to %@.", [routeOptions objectForKey:IDENTIFIER_JSON_NAME]);
         }
         UIStoryboard *storyboard = [UIStoryboard storyboardWithName:storyboardName bundle:nil];
-        return [storyboard instantiateViewControllerWithIdentifier:[routeOptions objectForKey:IDENTIFIER_JSON_NAME]];
+		return [storyboard instantiateViewControllerWithIdentifier:[routeOptions objectForKey:IDENTIFIER_JSON_NAME]];
     }
     else if (([class length] != 0) && ([identifier length] != 0))
     {
